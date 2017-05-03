@@ -1,3 +1,29 @@
+This is a fork of the django web application framework, patched specifically
+for https://github.com/frePPLe/frePPLe.  FrePPLe users should install this
+patched version of django.
+
+Every frePPLe release has a seperate branch in this repository to provide
+full tracebility of all changes.
+
+At a high level the patch addresses the following topics:
+
+* Database routing that is controlled with a URL prefix.
+  For instance:
+    http://host/data/admin/1 uses the 'default' database.
+    http://host/copy1/data/admin/2 uses the 'copy1' database.
+    http://host/copy2/data/admin/2 uses the 'copy2' database.
+
+* Autoreload fix to keep working when using a py2exe executable.
+
+* Admin edit form doesn't display the current value after
+  the control.
+
+* Minor corrections to support multiple admin sites.
+
+* Adding request variable to the template context.
+
+-----------------------------------------------------------------------------
+
 Django is a high-level Python Web framework that encourages rapid development
 and clean, pragmatic design. Thanks for checking it out.
 

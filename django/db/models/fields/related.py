@@ -898,7 +898,9 @@ class ForeignKey(ForeignObject):
         if value is None:
             return
 
-        using = router.db_for_read(self.remote_field.model, instance=model_instance)
+        using = model_instance._state.db
+        if using is None:
+            using = router.db_for_read(self.remote_field.model, instance=model_instance)
         qs = self.remote_field.model._default_manager.using(using).filter(
             **{self.remote_field.field_name: value}
         )

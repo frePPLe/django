@@ -1110,7 +1110,13 @@ class Model(metaclass=ModelBase):
                 lookup_kwargs['%s__%s' % (unique_for, lookup_type)] = getattr(date, lookup_type)
             lookup_kwargs[field] = getattr(self, field)
 
-            qs = model_class._default_manager.filter(**lookup_kwargs)
+            # FREPPLE FIX: we need to check in the right database for uniqueness
+            using = self._state.db
+            if using:
+              qs = model_class._default_manager.using(using).filter(**lookup_kwargs)
+            else:
+              qs = model_class._default_manager.filter(**lookup_kwargs)
+
             # Exclude the current object from the query if we are editing an
             # instance (as opposed to creating a new one)
             if not self._state.adding and self.pk is not None:
