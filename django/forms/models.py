@@ -636,10 +636,21 @@ class BaseModelFormSet(BaseFormSet):
             if not qs.ordered:
                 qs = qs.order_by(self.model._meta.pk.name)
 
-            # Removed queryset limiting here. As per discussion re: #13023
-            # on django-dev, max_num should not prevent existing
-            # related objects/inlines from being displayed.
-            self._queryset = qs
+            # FREPPLE CORRECTION
+            # When the number of inline forms grows big, the performance
+            # (both on the backend and in the browser) and user experience
+            # quickly degrade. We therefore limit the number of displayed
+            # records to 20.
+            # We also set a variable on the formset such that templates
+            # can inform the user that they are seeing only a subset of the
+            # data
+            tmp = qs.count() 
+            if tmp > 20:
+              self.there_are_more_records = (tmp, 20)
+              self._queryset = qs[:20]
+            else:
+              self.there_are_more_records = None
+              self._queryset = qs
         return self._queryset
 
     def save_new(self, form, commit=True):
