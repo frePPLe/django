@@ -1,1 +1,4 @@
-{% include 'django/forms/widgets/input.html' %}{% if related_url %}<a href="{{ related_url }}" class="related-lookup" id="lookup_id_{{ widget.name }}" title="{{ link_title }}"></a>{% endif %}
+{% include 'django/forms/widgets/input.html' %}{% if related_url %}
+<a href="{{ related_url }}" class="related-lookup" id="lookup_id_{{ widget.name }}" title="{{ link_title }}"></a>
+<a href="{{link_url}}"><span class="leftpadding fa fa-caret-right"></span></a>
+{% endif %}

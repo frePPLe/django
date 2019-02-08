@@ -163,7 +163,8 @@ class ForeignKeyRawIdWidget(forms.TextInput):
         else:
             context['related_url'] = None
         if context['widget']['value']:
-            context['link_label'], context['link_url'] = self.label_and_url_for_value(value)
+            context['link_label'], tmp = self.label_and_url_for_value(value)
+            context['link_url'] = "%s%s" % (prefix, tmp)
         else:
             context['link_label'] = None
         return context
