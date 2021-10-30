@@ -1134,3 +1134,72 @@ Versions affected
 * Django 3.1 :commit:`(patch) <2b099caa5923afa8cfb5f1e8c0d56b6e0e81915b>`
 * Django 3.0 :commit:`(patch) <cdb367c92a0ba72ddc0cbd13ff42b0e6df709554>`
 * Django 2.2 :commit:`(patch) <a3aebfdc8153dc230686b6d2454ccd32ed4c9e6f>`
+
+February 1, 2021 - :cve:`2021-3281`
+-----------------------------------
+
+Potential directory-traversal via ``archive.extract()``. `Full description
+<https://www.djangoproject.com/weblog/2021/feb/01/security-releases/>`__
+
+Versions affected
+~~~~~~~~~~~~~~~~~
+
+* Django 3.1 :commit:`(patch) <02e6592835b4559909aa3aaaf67988fef435f624>`
+* Django 3.0 :commit:`(patch) <52e409ed17287e9aabda847b6afe58be2fa9f86a>`
+* Django 2.2 :commit:`(patch) <21e7622dec1f8612c85c2fc37fe8efbfd3311e37>`
+
+February 19, 2021 - :cve:`2021-23336`
+-------------------------------------
+
+Web cache poisoning via ``django.utils.http.limited_parse_qsl()``. `Full
+description
+<https://www.djangoproject.com/weblog/2021/feb/19/security-releases/>`__
+
+Versions affected
+~~~~~~~~~~~~~~~~~
+
+* Django 3.2 :commit:`(patch) <be8237c7cce24b06aabde0b97afce98ddabbe3b6>`
+* Django 3.1 :commit:`(patch) <8f6d431b08cbb418d9144b976e7b972546607851>`
+* Django 3.0 :commit:`(patch) <326a926beef869d3341bc9ef737887f0449b6b71>`
+* Django 2.2 :commit:`(patch) <fd6b6afd5959b638c62dbf4839ccff97e7f7dfda>`
+
+April 6, 2021 - :cve:`2021-28658`
+---------------------------------
+
+Potential directory-traversal via uploaded files. `Full description
+<https://www.djangoproject.com/weblog/2021/apr/06/security-releases/>`__
+
+Versions affected
+~~~~~~~~~~~~~~~~~
+
+* Django 3.2 :commit:`(patch) <2820fd1be5dfccbf1216c3845fad8580502473e1>`
+* Django 3.1 :commit:`(patch) <cca0d98118cccf9ae0c6dcf2d6c57fc50469fbf0>`
+* Django 3.0 :commit:`(patch) <e7fba62248f604c76da4f23dcf1db4a57b0808ea>`
+* Django 2.2 :commit:`(patch) <4036d62bda0e9e9f6172943794b744a454ca49c2>`
+
+May 4, 2021 - :cve:`2021-31542`
+-------------------------------
+
+Potential directory-traversal via uploaded files. `Full description
+<https://www.djangoproject.com/weblog/2021/may/04/security-releases/>`__
+
+Versions affected
+~~~~~~~~~~~~~~~~~
+
+* Django 3.2 :commit:`(patch) <c98f446c188596d4ba6de71d1b77b4a6c5c2a007>`
+* Django 3.1 :commit:`(patch) <25d84d64122c15050a0ee739e859f22ddab5ac48>`
+* Django 2.2 :commit:`(patch) <04ac1624bdc2fa737188401757cf95ced122d26d>`
+
+May 6, 2021 - :cve:`2021-32052`
+-------------------------------
+
+Header injection possibility since ``URLValidator`` accepted newlines in input
+on Python 3.9.5+. `Full description
+<https://www.djangoproject.com/weblog/2021/may/06/security-releases/>`__
+
+Versions affected
+~~~~~~~~~~~~~~~~~
+
+* Django 3.2 :commit:`(patch) <2d2c1d0c97832860fbd6597977e2aae17dd7e5b2>`
+* Django 3.1 :commit:`(patch) <afb23f5929944a407e4990edef1c7806a94c9879>`
+* Django 2.2 :commit:`(patch) <d9594c4ea57b6309d93879805302cec9ae9f23ff>`
