@@ -5,6 +5,7 @@ import copy
 import json
 
 from django import forms
+from django.db import DEFAULT_DB_ALIAS
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.validators import URLValidator
@@ -133,9 +134,13 @@ class ForeignKeyRawIdWidget(forms.TextInput):
     def get_context(self, name, value, attrs):
         context = super().get_context(name, value, attrs)
         rel_to = self.rel.model
+        if not self.db or self.db == DEFAULT_DB_ALIAS:
+          prefix = ''
+        else:
+          prefix = '/%s' % self.db
         if rel_to in self.admin_site._registry:
             # The related object is registered with the same AdminSite
-            related_url = reverse(
+            related_url = prefix + reverse(
                 'admin:%s_%s_changelist' % (
                     rel_to._meta.app_label,
                     rel_to._meta.model_name,
@@ -153,7 +158,8 @@ class ForeignKeyRawIdWidget(forms.TextInput):
         else:
             context['related_url'] = None
         if context['widget']['value']:
-            context['link_label'], context['link_url'] = self.label_and_url_for_value(value)
+            context['link_label'], tmp = self.label_and_url_for_value(value)
+            context['link_url'] = "%s%s" % (prefix, tmp)
         else:
             context['link_label'] = None
         return context

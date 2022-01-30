@@ -52,6 +52,9 @@ def create_permissions(app_config, verbosity=2, interactive=True, using=DEFAULT_
     if not router.allow_migrate_model(using, Permission):
         return
 
+    # FrePPLe workaround for issue https://code.djangoproject.com/ticket/10827
+    ContentType.objects.clear_cache()
+    
     # This will hold the permissions we're looking for as
     # (content_type, (codename, name))
     searched_perms = []
