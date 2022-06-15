@@ -73,4 +73,4 @@ class BaseConnectionHandler:
         return iter(self.settings)
 
     def all(self):
-        return [self[alias] for alias in self]
+        return [self[alias] for alias in self if hasattr(self._connections, alias)]
