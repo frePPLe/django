@@ -1352,6 +1352,14 @@ class MiscTests(SimpleTestCase):
             ('de;q=0.', [('de', 0.0)]),
             ('en; q=1,', [('en', 1.0)]),
             ('en; q=1.0, * ; q=0.5', [('en', 1.0), ('*', 0.5)]),
+            (
+                'en' + '-x' * 20,
+                [('en-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x', 1.0)],
+            ),
+            (
+                ', '.join(['en; q=1.0'] * 20),
+                [('en', 1.0)] * 20,
+            ),
             # Bad headers
             ('en-gb;q=1.0000', []),
             ('en;q=0.1234', []),
@@ -1367,6 +1375,10 @@ class MiscTests(SimpleTestCase):
             ('12-345', []),
             ('', []),
             ('en;q=1e0', []),
+            # Invalid as language-range value too long.
+            ('xxxxxxxx' + '-xxxxxxxx' * 500, []),
+            # Header value too long, only parse up to limit.
+            (', '.join(['en; q=1.0'] * 500), [('en', 1.0)] * 45),
         ]
         for value, expected in tests:
             with self.subTest(value=value):
@@ -1948,7 +1960,7 @@ class WatchForTranslationChangesTests(SimpleTestCase):
 
     def test_i18n_app_dirs(self):
         mocked_sender = mock.MagicMock()
-        with self.settings(INSTALLED_APPS=['tests.i18n.sampleproject']):
+        with self.settings(INSTALLED_APPS=["i18n.sampleproject"]):
             watch_for_translation_changes(mocked_sender)
         project_dir = Path(__file__).parent / 'sampleproject' / 'locale'
         mocked_sender.watch_dir.assert_any_call(project_dir, '**/*.mo')
