@@ -32,9 +32,11 @@ def user_passes_test(
             ):
                 path = request.get_full_path()
             from django.contrib.auth.views import redirect_to_login
-
-            return redirect_to_login(path, resolved_login_url, redirect_field_name)
-
+            # FrePPLe redirects to a scenario-specific login URL
+            return redirect_to_login(
+            	getattr(request, "prefix", "") + path,
+            	resolved_login_url, redirect_field_name
+            	)
         return _wrapper_view
 
     return decorator
