@@ -2260,6 +2260,27 @@ class AggregateAnnotationPruningTests(TestCase):
         self.assertEqual(sql.count("select"), 3, "Subquery wrapping required")
         self.assertEqual(aggregate, {"sum_total_books": 3})
 
+    def test_referenced_composed_subquery_requires_wrapping(self):
+        total_books_qs = (
+            Author.book_set.through.objects.values("author")
+            .filter(author=OuterRef("pk"))
+            .annotate(total=Count("book"))
+        )
+        with self.assertNumQueries(1) as ctx:
+            aggregate = (
+                Author.objects.annotate(
+                    total_books=Subquery(total_books_qs.values("total")),
+                    total_books_ref=F("total_books") / 1,
+                )
+                .values("pk", "total_books_ref")
+                .aggregate(
+                    sum_total_books=Sum("total_books_ref"),
+                )
+            )
+        sql = ctx.captured_queries[0]["sql"].lower()
+        self.assertEqual(sql.count("select"), 3, "Subquery wrapping required")
+        self.assertEqual(aggregate, {"sum_total_books": 3})
+
     @skipUnlessDBFeature("supports_over_clause")
     def test_referenced_window_requires_wrapping(self):
         total_books_qs = Book.objects.annotate(
@@ -2279,3 +2300,9 @@ class AggregateAnnotationPruningTests(TestCase):
             aggregate,
             {"sum_avg_publisher_pages": 1100.0, "books_count": 2},
         )
+
+    def test_aggregate_reference_lookup_rhs(self):
+        aggregates = Author.objects.annotate(
+            max_book_author=Max("book__authors"),
+        ).aggregate(count=Count("id", filter=Q(id=F("max_book_author"))))
+        self.assertEqual(aggregates, {"count": 1})
