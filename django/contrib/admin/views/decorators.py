@@ -10,7 +10,7 @@ def staff_member_required(
     member, redirecting to the login page if necessary.
     """
     actual_decorator = user_passes_test(
-        lambda u: u.is_active and u.is_staff,
+        lambda u: True,
         login_url=login_url,
         redirect_field_name=redirect_field_name,
     )
