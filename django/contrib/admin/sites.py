@@ -200,7 +200,7 @@ class AdminSite:
         Return True if the given HttpRequest has permission to view
         *at least one* page in the admin site.
         """
-        return request.user.is_active and request.user.is_staff
+        return not request.user.is_anonymous
 
     def admin_view(self, view, cacheable=False):
         """
