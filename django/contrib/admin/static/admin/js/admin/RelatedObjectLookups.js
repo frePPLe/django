@@ -57,6 +57,7 @@
         } else {
             document.getElementById(name).value = chosenId;
         }
+		$("#content-main form input[type='submit']").prop("disabled", false);
         const index = relatedWindows.indexOf(win);
         if (index > -1) {
             relatedWindows.splice(index, 1);
