@@ -1,0 +1,9 @@
+rules:
+  dangerous-triggers:
+    ignore:
+      - new_contributor_pr.yml
+  unpinned-uses:
+    config:
+      policies:
+        actions/*: ref-pin
+        psf/*: ref-pin

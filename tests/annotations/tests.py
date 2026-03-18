@@ -1,7 +1,9 @@
 import datetime
 from decimal import Decimal
+from itertools import chain
 
 from django.core.exceptions import FieldDoesNotExist, FieldError
+from django.db import connection
 from django.db.models import (
     BooleanField,
     Case,
@@ -12,6 +14,7 @@ from django.db.models import (
     Exists,
     ExpressionWrapper,
     F,
+    FilteredRelation,
     FloatField,
     Func,
     IntegerField,
@@ -1113,13 +1116,32 @@ class NonAggregateAnnotationTestCase(TestCase):
         )
 
     def test_alias_sql_injection(self):
-        crafted_alias = """injected_name" from "annotations_book"; --"""
         msg = (
-            "Column aliases cannot contain whitespace characters, quotation marks, "
-            "semicolons, or SQL comments."
+            "Column aliases cannot contain whitespace characters, hashes, "
+            "control characters, quotation marks, semicolons, or SQL comments."
         )
-        with self.assertRaisesMessage(ValueError, msg):
-            Book.objects.annotate(**{crafted_alias: Value(1)})
+        for crafted_alias in [
+            """injected_name" from "annotations_book"; --""",
+            # Control characters.
+            *(f"name{chr(c)}" for c in chain(range(32), range(0x7F, 0xA0))),
+        ]:
+            with self.subTest(crafted_alias):
+                with self.assertRaisesMessage(ValueError, msg):
+                    Book.objects.annotate(**{crafted_alias: Value(1)})
+
+    def test_alias_filtered_relation_sql_injection(self):
+        msg = (
+            "Column aliases cannot contain whitespace characters, hashes, "
+            "control characters, quotation marks, semicolons, or SQL comments."
+        )
+        for crafted_alias in [
+            """injected_name" from "annotations_book"; --""",
+            # Control characters.
+            *(f"name{chr(c)}" for c in chain(range(32), range(0x7F, 0xA0))),
+        ]:
+            with self.subTest(crafted_alias):
+                with self.assertRaisesMessage(ValueError, msg):
+                    Book.objects.annotate(**{crafted_alias: FilteredRelation("author")})
 
     def test_alias_forbidden_chars(self):
         tests = [
@@ -1133,18 +1155,25 @@ class NonAggregateAnnotationTestCase(TestCase):
             "ali/*as",
             "alias*/",
             "alias;",
-            # [] are used by MSSQL.
+            # [] and # are used by MSSQL.
             "alias[",
             "alias]",
+            "ali#as",
+            "ali\0as",
         ]
         msg = (
-            "Column aliases cannot contain whitespace characters, quotation marks, "
-            "semicolons, or SQL comments."
+            "Column aliases cannot contain whitespace characters, hashes, "
+            "control characters, quotation marks, semicolons, or SQL comments."
         )
         for crafted_alias in tests:
             with self.subTest(crafted_alias):
                 with self.assertRaisesMessage(ValueError, msg):
                     Book.objects.annotate(**{crafted_alias: Value(1)})
+
+                with self.assertRaisesMessage(ValueError, msg):
+                    Book.objects.annotate(
+                        **{crafted_alias: FilteredRelation("authors")}
+                    )
 
 
 class AliasTests(TestCase):
@@ -1411,10 +1440,40 @@ class AliasTests(TestCase):
                     getattr(qs, operation)("rating_alias")
 
     def test_alias_sql_injection(self):
-        crafted_alias = """injected_name" from "annotations_book"; --"""
         msg = (
-            "Column aliases cannot contain whitespace characters, quotation marks, "
-            "semicolons, or SQL comments."
+            "Column aliases cannot contain whitespace characters, hashes, "
+            "control characters, quotation marks, semicolons, or SQL comments."
         )
-        with self.assertRaisesMessage(ValueError, msg):
-            Book.objects.alias(**{crafted_alias: Value(1)})
+        for crafted_alias in [
+            """injected_name" from "annotations_book"; --""",
+            # Control characters.
+            *(f"name{chr(c)}" for c in chain(range(32), range(0x7F, 0xA0))),
+        ]:
+            with self.subTest(crafted_alias):
+                with self.assertRaisesMessage(ValueError, msg):
+                    Book.objects.alias(**{crafted_alias: Value(1)})
+
+    def test_alias_filtered_relation_sql_injection(self):
+        msg = (
+            "Column aliases cannot contain whitespace characters, hashes, "
+            "control characters, quotation marks, semicolons, or SQL comments."
+        )
+        for crafted_alias in [
+            """injected_name" from "annotations_book"; --""",
+            # Control characters.
+            *(f"name{chr(c)}" for c in chain(range(32), range(0x7F, 0xA0))),
+        ]:
+            with self.subTest(crafted_alias):
+                with self.assertRaisesMessage(ValueError, msg):
+                    Book.objects.alias(**{crafted_alias: FilteredRelation("authors")})
+
+    def test_alias_filtered_relation_sql_injection_dollar_sign(self):
+        qs = Book.objects.alias(
+            **{"crafted_alia$": FilteredRelation("authors")}
+        ).values("name", "crafted_alia$")
+        if connection.vendor == "postgresql":
+            msg = "Dollar signs are not permitted in column aliases on PostgreSQL."
+            with self.assertRaisesMessage(ValueError, msg):
+                list(qs)
+        else:
+            self.assertEqual(qs.first()["name"], self.b1.name)

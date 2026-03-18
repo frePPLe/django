@@ -23,9 +23,12 @@ jobs:
   docs:
     runs-on: ubuntu-24.04
     name: docs
+    timeout-minutes: 60
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
@@ -41,9 +44,12 @@ jobs:
   blacken-docs:
     runs-on: ubuntu-latest
     name: blacken-docs
+    timeout-minutes: 60
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - name: Set up Python
         uses: actions/setup-python@v4
         with:

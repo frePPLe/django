@@ -22,10 +22,13 @@ jobs:
           - '3.11'
           - '3.12-dev'
     name: Windows, SQLite, Python ${{ matrix.python-version }}
+    timeout-minutes: 60
     continue-on-error: true
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
@@ -44,6 +47,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:

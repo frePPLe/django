@@ -46,9 +46,11 @@ from django.utils.tree import Node
 
 __all__ = ["Query", "RawQuery"]
 
-# Quotation marks ('"`[]), whitespace characters, semicolons, or inline
-# SQL comments are forbidden in column aliases.
-FORBIDDEN_ALIAS_PATTERN = _lazy_re_compile(r"['`\"\]\[;\s]|--|/\*|\*/")
+# Quotation marks ('"`[]), whitespace characters, control characters,
+# semicolons, hashes, or inline SQL comments are forbidden in column aliases.
+FORBIDDEN_ALIAS_PATTERN = _lazy_re_compile(
+    r"['`\"\]\[;\s\x00-\x1F\x7F-\x9F]|#|--|/\*|\*/"
+)
 
 # Inspired from
 # https://www.postgresql.org/docs/current/sql-syntax-lexical.html#SQL-SYNTAX-IDENTIFIERS
@@ -1123,8 +1125,8 @@ class Query(BaseExpression):
     def check_alias(self, alias):
         if FORBIDDEN_ALIAS_PATTERN.search(alias):
             raise ValueError(
-                "Column aliases cannot contain whitespace characters, quotation marks, "
-                "semicolons, or SQL comments."
+                "Column aliases cannot contain whitespace characters, hashes, "
+                "control characters, quotation marks, semicolons, or SQL comments."
             )
 
     def add_annotation(self, annotation, alias, select=True):
@@ -1620,6 +1622,12 @@ class Query(BaseExpression):
         return target_clause
 
     def add_filtered_relation(self, filtered_relation, alias):
+        if "." in alias:
+            raise ValueError(
+                "FilteredRelation doesn't support aliases with periods "
+                "(got %r)." % alias
+            )
+        self.check_alias(alias)
         filtered_relation.alias = alias
         lookups = dict(get_children_from_q(filtered_relation.condition))
         relation_lookup_parts, relation_field_parts, _ = self.solve_lookup_type(
