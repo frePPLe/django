@@ -11,7 +11,7 @@
         relatedWindows.forEach(function(win) {
             if(!win.closed) {
                 win.dismissChildPopups();
-                win.close();    
+                win.close();
             }
         });
     }
@@ -19,7 +19,7 @@
     function setPopupIndex() {
         if(document.getElementsByName("_popup").length > 0) {
             const index = window.name.lastIndexOf("__") + 2;
-            popupIndex = parseInt(window.name.substring(index));   
+            popupIndex = parseInt(window.name.substring(index));
         } else {
             popupIndex = 0;
         }
@@ -58,6 +58,7 @@
             elem.value = chosenId;
         }
         $(elem).trigger('change');
+		$("#content-main form input[type='submit']").prop("disabled", false);
         const index = relatedWindows.indexOf(win);
         if (index > -1) {
             relatedWindows.splice(index, 1);
